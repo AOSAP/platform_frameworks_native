@@ -126,10 +126,7 @@
 #include "TimeStats/TimeStats.h"
 #include "android-base/parseint.h"
 #include "android-base/stringprintf.h"
-
-#ifdef QCOM_UM_FAMILY
 #include "gralloc_priv.h"
-#endif
 
 #define MAIN_THREAD ACQUIRE(mStateLock) RELEASE(mStateLock)
 
@@ -2582,11 +2579,7 @@ void SurfaceFlinger::processDisplayAdded(const wp<IBinder>& displayToken,
                                          const DisplayDeviceState& state) {
     int width = 0;
     int height = 0;
-#ifdef QCOM_UM_FAMILY
     bool canAllocateHwcForVDS = false;
-#else
-    bool canAllocateHwcForVDS = true;
-#endif
     ui::PixelFormat pixelFormat = static_cast<ui::PixelFormat>(PIXEL_FORMAT_UNKNOWN);
     if (state.physical) {
         const auto& activeConfig =
@@ -2603,7 +2596,6 @@ void SurfaceFlinger::processDisplayAdded(const wp<IBinder>& displayToken,
         status = state.surface->query(NATIVE_WINDOW_FORMAT, &intPixelFormat);
         ALOGE_IF(status != NO_ERROR, "Unable to query format (%d)", status);
         pixelFormat = static_cast<ui::PixelFormat>(intPixelFormat);
-#ifdef QCOM_UM_FAMILY
         if (mUseHwcVirtualDisplays || getHwComposer().isUsingVrComposer()) {
             if (maxVirtualDisplaySize == 0 ||
                 ((uint64_t)width <= maxVirtualDisplaySize &&
@@ -2617,7 +2609,6 @@ void SurfaceFlinger::processDisplayAdded(const wp<IBinder>& displayToken,
                }
             }
         }
-#endif
     } else {
         // Virtual displays without a surface are dormant:
         // they have external state (layer stack, projection,
@@ -6115,7 +6106,6 @@ status_t SurfaceFlinger::setDesiredDisplayConfigSpecsInternal(
     return NO_ERROR;
 }
 
-#ifdef QCOM_UM_FAMILY
 bool SurfaceFlinger::canAllocateHwcDisplayIdForVDS(uint64_t usage) {
     uint64_t flag_mask_pvt_wfd = ~0;
     uint64_t flag_mask_hw_video = ~0;
@@ -6129,11 +6119,6 @@ bool SurfaceFlinger::canAllocateHwcDisplayIdForVDS(uint64_t usage) {
     return (allowHwcForVDS || ((usage & flag_mask_pvt_wfd) &&
             (usage & flag_mask_hw_video)));
 }
-#else
-bool SurfaceFlinger::canAllocateHwcDisplayIdForVDS(uint64_t) {
-    return true;
-}
-#endif
 
 status_t SurfaceFlinger::setDesiredDisplayConfigSpecs(const sp<IBinder>& displayToken,
                                                       int32_t defaultConfig,

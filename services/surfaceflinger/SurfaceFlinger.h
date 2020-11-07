@@ -738,8 +738,8 @@ private:
     void traverseLayersInDisplay(const sp<const DisplayDevice>& display,
                                  const LayerVector::Visitor& visitor);
 
-    bool canAllocateHwcDisplayIdForVDS(uint64_t usage);
 
+    bool canAllocateHwcDisplayIdForVDS(uint64_t usage);
     sp<StartPropertySetThread> mStartPropertySetThread;
 
     /* ------------------------------------------------------------------------
